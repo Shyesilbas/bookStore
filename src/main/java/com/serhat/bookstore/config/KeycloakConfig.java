@@ -12,8 +12,8 @@ public class KeycloakConfig {
     public Keycloak keycloak(){
         return KeycloakBuilder.builder()
                 .serverUrl("http://localhost:8080")
-                .realm("bookStore")
-                .clientId("bookStore")
+                .realm("master")
+                .clientId("admin-cli")
                 .username("admin")
                 .password("admin")
                 .build();

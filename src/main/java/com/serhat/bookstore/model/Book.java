@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -24,7 +25,7 @@ public class Book {
     private String author;
     @Enumerated(EnumType.STRING)
     private Genre genre;
-    private LocalDateTime releaseDate;
+    private LocalDate releaseDate;
     private double rate;
     @Enumerated(EnumType.STRING)
     private BookStatus bookStatus;

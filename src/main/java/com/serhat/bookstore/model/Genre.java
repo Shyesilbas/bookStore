@@ -23,5 +23,7 @@ public enum Genre {
     CHILDRENS,
     CLASSICS,
     TRAVEL,
-    SCIENCE;
+    SCIENCE,
+    POST_APOCALYPTIC;
+
 }
