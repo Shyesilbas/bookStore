@@ -1,13 +1,13 @@
 package com.serhat.bookstore.Controller;
 
+import com.serhat.bookstore.dto.AddBookRequest;
+import com.serhat.bookstore.dto.AddBookResponse;
+import com.serhat.bookstore.dto.DeleteBookResponse;
 import com.serhat.bookstore.service.BookService;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,8 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookController {
     private final BookService bookService;
 
-    @DeleteMapping("/delete/{bookId}")
-    public ResponseEntity<String> deleteBook(@PathVariable Long bookId){
-        return ResponseEntity.ok(bookService.deleteBook(bookId));
+    @DeleteMapping("/delete/{isbn}")
+    public ResponseEntity<DeleteBookResponse> deleteBook (@PathVariable String isbn){
+        return ResponseEntity.ok(bookService.deleteBook(isbn));
     }
+    @PostMapping("/addBook")
+    public ResponseEntity<AddBookResponse> addBook (@RequestBody AddBookRequest request){
+        return ResponseEntity.ok(bookService.addBook(request));
+    }
+
+
 }

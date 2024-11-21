@@ -27,7 +27,8 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         return   httpSecurity.authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/customer/create").permitAll()
-                        .requestMatchers("/api/book/delete/{bookId}").hasRole("ADMIN")
+                        .requestMatchers("/api/book/delete/{isbn}").hasRole("ADMIN")
+                        .requestMatchers("/api/book/addBook").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2-> oauth2
                         .jwt(Customizer.withDefaults())

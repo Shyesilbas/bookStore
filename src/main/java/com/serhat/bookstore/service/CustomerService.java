@@ -71,6 +71,7 @@ public class CustomerService {
         customerRepository.delete(customer);
         keycloakUserService.deleteKeycloakUser(customer);
         return new DeleteCustomerResponse(
+                "Successfully Deleted",
                 customer.getCustomerId(),
                 customer.getUsername(),
                 customer.getEmail()
