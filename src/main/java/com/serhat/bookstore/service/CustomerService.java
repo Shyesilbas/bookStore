@@ -5,6 +5,8 @@ import com.serhat.bookstore.Repository.ReservedBookRepository;
 import com.serhat.bookstore.dto.*;
 import com.serhat.bookstore.exception.*;
 import com.serhat.bookstore.model.Customer;
+import com.serhat.bookstore.model.IsCustomerVerified;
+import com.serhat.bookstore.model.MemberShipStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,6 +43,8 @@ public class CustomerService {
            Customer customer = Customer.builder()
                    .username(request.username())
                    .password(request.password())
+                   .memberShipStatus(MemberShipStatus.BASIC)
+                   .isUserVerified(IsCustomerVerified.VERIFIED)
                    .email(request.email())
                    .phone(request.phone())
                    .build();
@@ -57,13 +61,15 @@ public class CustomerService {
     }
 
     @Transactional
-    public DeleteCustomerResponse deleteCustomer(String username){
+    public DeleteCustomerResponse deleteCustomer(Principal principal){
+        String username = principal.getName();
         Customer customer = customerRepository.findByUsername(username)
                 .orElseThrow(()-> new CustomerNotFoundException("Customer Not found : "+username));
         if(customer.getTotalReservedBook()>0){
             throw new AccountCannotBeDeletedException("You Have Reserved Books , after Bringing back , you can delete your account.");
         }
         customerRepository.delete(customer);
+        keycloakUserService.deleteKeycloakUser(customer);
         return new DeleteCustomerResponse(
                 customer.getCustomerId(),
                 customer.getUsername(),

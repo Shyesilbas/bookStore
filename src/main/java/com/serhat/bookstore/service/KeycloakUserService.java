@@ -50,6 +50,29 @@ public class KeycloakUserService {
         } catch (Exception e) {
             log.error("An error occurred while creating Keycloak User", e);
         }
-        };
     }
+
+    ;
+
+    public void deleteKeycloakUser(Customer customer) {
+        try {
+            List<UserRepresentation> users = keycloak.realm("bookStore")
+                    .users()
+                    .search(customer.getUsername());
+
+            if(users.isEmpty()){
+                log.warn("User not found in Keycloak: {}", customer.getUsername());
+                return;
+            }
+            String userId = users.get(0).getId();
+
+            keycloak.realm("bookStore")
+                    .users()
+                    .delete(userId);
+
+        } catch (Exception e) {
+            log.error("An error occurred while deleting Keycloak User", e);
+        }
+    }
+}
 

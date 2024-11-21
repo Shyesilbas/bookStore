@@ -26,8 +26,7 @@ public class CustomerController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<DeleteCustomerResponse> deleteCustomer(Principal principal){
-        String username = principal.getName();
-        return ResponseEntity.ok(customerService.deleteCustomer(username));
+        return ResponseEntity.ok(customerService.deleteCustomer(principal));
     }
 
     @PutMapping("/updatePhoneNumber")
