@@ -27,6 +27,9 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         return   httpSecurity.authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/customer/create").permitAll()
+                        .requestMatchers("/api/book/books/genre/{genre}").permitAll()
+                        .requestMatchers("/api/book/byAuthor").permitAll()
+                        .requestMatchers("/api/book/byRateRange/{minRange}/{maxRange}").permitAll()
                         .requestMatchers("/api/book/delete/{isbn}").hasRole("ADMIN")
                         .requestMatchers("/api/book/addBook").hasRole("ADMIN")
                         .anyRequest().authenticated())

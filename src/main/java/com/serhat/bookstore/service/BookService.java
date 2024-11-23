@@ -1,16 +1,14 @@
 package com.serhat.bookstore.service;
 
 import com.serhat.bookstore.Repository.BookRepository;
-import com.serhat.bookstore.dto.AddBookRequest;
-import com.serhat.bookstore.dto.AddBookResponse;
-import com.serhat.bookstore.dto.DeleteBookResponse;
-import com.serhat.bookstore.exception.BookNotFoundException;
-import com.serhat.bookstore.exception.BookWithIsbnExistsException;
-import com.serhat.bookstore.exception.BookWithTitleExistsException;
+import com.serhat.bookstore.dto.*;
+import com.serhat.bookstore.exception.*;
 import com.serhat.bookstore.model.Book;
 import com.serhat.bookstore.model.BookStatus;
+import com.serhat.bookstore.model.Genre;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -19,7 +17,10 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Pageable;
 import java.security.Principal;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -84,7 +85,58 @@ public class BookService {
                 request.rate(),
                 request.price()
         );
+    }
 
+    public List<BookResponse> listBooksByGenre(Genre genre ){
+
+        List<Book> books = bookRepository.findByGenre(genre);
+        return books.stream()
+                .map(book -> new BookResponse(
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getIsbn(),
+                        book.getGenre(),
+                        book.getRate(),
+                        book.getPrice()
+                ))
+                .toList();
+    }
+
+    public List<BookResponse> listBooksByRatingRange(double minRating , double maxRating){
+        List<Book> books = bookRepository.findAll();
+
+        if(minRating>maxRating){
+            throw new IllegalRatingException("Check you rating ranges!");
+        }
+        return books.stream()
+                .filter(book -> book.getRate()>= minRating && book.getRate()<=maxRating)
+                .sorted(Comparator.comparingDouble(Book::getRate).reversed()) // Sort by rating
+                .map(book -> new BookResponse(
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getIsbn(),
+                        book.getGenre(),
+                        book.getRate(),
+                        book.getPrice()
+                ))
+                .toList();
+    }
+
+    public List<BookResponse> listBooksOfAuthor(String author){
+        List<Book> books = bookRepository.findByAuthor(author);
+        if(books.isEmpty()){
+            throw new BookNotFoundForAuthorException("No such book found for author : "+author);
+        }
+        return books.stream()
+                .map(book -> new BookResponse(
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getIsbn(),
+                        book.getGenre(),
+                        book.getRate(),
+                        book.getPrice()
+                ))
+                .toList();
     }
 
 }
