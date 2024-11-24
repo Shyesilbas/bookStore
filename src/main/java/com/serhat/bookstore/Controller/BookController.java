@@ -1,9 +1,6 @@
 package com.serhat.bookstore.Controller;
 
-import com.serhat.bookstore.dto.AddBookRequest;
-import com.serhat.bookstore.dto.AddBookResponse;
-import com.serhat.bookstore.dto.BookResponse;
-import com.serhat.bookstore.dto.DeleteBookResponse;
+import com.serhat.bookstore.dto.*;
 import com.serhat.bookstore.model.Genre;
 import com.serhat.bookstore.service.BookService;
 
@@ -50,6 +47,16 @@ public class BookController {
     @GetMapping("/byAuthor")
     public ResponseEntity<List<BookResponse>> listBooksOfAuthor(@RequestParam String author){
         return ResponseEntity.ok(bookService.listBooksOfAuthor(author));
+    }
+
+    @GetMapping("/byTitle")
+    public ResponseEntity<List<BookResponse>> listBookByTitle(@RequestParam String title){
+        return ResponseEntity.ok(bookService.findBookByTitle(title));
+    }
+
+    @PutMapping("/updateStock")
+    public ResponseEntity<UpdateStockResponse> updateBookStock(@RequestBody UpdateStockRequest request){
+        return ResponseEntity.ok(bookService.updateBookStock(request));
     }
 
 

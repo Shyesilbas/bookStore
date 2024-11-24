@@ -29,9 +29,11 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/customer/create").permitAll()
                         .requestMatchers("/api/book/books/genre/{genre}").permitAll()
                         .requestMatchers("/api/book/byAuthor").permitAll()
+                        .requestMatchers("/api/book/byTitle").permitAll()
                         .requestMatchers("/api/book/byRateRange/{minRange}/{maxRange}").permitAll()
                         .requestMatchers("/api/book/delete/{isbn}").hasRole("ADMIN")
                         .requestMatchers("/api/book/addBook").hasRole("ADMIN")
+                        .requestMatchers("/api/book/updateStock").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2-> oauth2
                         .jwt(Customizer.withDefaults())

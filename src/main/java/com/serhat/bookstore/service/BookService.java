@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import java.security.Principal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -138,5 +139,47 @@ public class BookService {
                 ))
                 .toList();
     }
+
+    public List<BookResponse> findBookByTitle(String title){
+        List<Book> books = bookRepository.findByTitle(title);
+        if(books.isEmpty()){
+            throw new BookNotFoundByTitleException("No Such book found for title : "+title);
+        }
+        return books.stream()
+                .map(book -> new BookResponse(
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getIsbn(),
+                        book.getGenre(),
+                        book.getRate(),
+                        book.getPrice()
+                ))
+                .toList();
+    }
+
+    @Transactional
+    public UpdateStockResponse updateBookStock(UpdateStockRequest request){
+        Optional<Book> book = bookRepository.findByIsbn(request.isbn());
+        if(book.isEmpty()){
+            throw new BookNotFoundException("Book not found by isbn : "+request.isbn());
+        }
+        if(request.newQuantity()<0){
+            throw new IllegalStockUpdateException("quantity cannot be negative!");
+        }
+        int updatedQuantity = book.get().getQuantity()+ request.newQuantity();
+        book.get().setQuantity(updatedQuantity);
+        bookRepository.save(book.get());
+        String adminUsername = getAdmin();
+        log.info("Admin '{}' Updated  the book stock with ISBN '{}'. Book title: '{}'", adminUsername, request.isbn(), book.get().getTitle());
+        log.info("New Stock : "+request.newQuantity());
+
+        return new UpdateStockResponse(
+                "Stock Updated Successfully",
+                request.isbn(),
+                request.newQuantity()
+        );
+
+    }
+
 
 }
