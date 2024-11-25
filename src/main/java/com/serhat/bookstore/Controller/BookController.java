@@ -9,8 +9,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,6 +60,34 @@ public class BookController {
     public ResponseEntity<UpdateStockResponse> updateBookStock(@RequestBody UpdateStockRequest request){
         return ResponseEntity.ok(bookService.updateBookStock(request));
     }
+    @PutMapping("/updatePrice")
+    public ResponseEntity<UpdateBookPriceResponse> updatePrice(@RequestBody UpdatePriceRequest request){
+        return ResponseEntity.ok(bookService.updatePrice(request));
+    }
+    @GetMapping("/details")
+    public ResponseEntity<BookResponse> getBookDetails(@RequestParam String isbn){
+        return ResponseEntity.ok(bookService.getBookDetails(isbn));
+    }
+
+    @GetMapping("/byYear")
+    public ResponseEntity<List<BookResponse>> getBooksByYear(@RequestParam LocalDate startDate , @RequestParam LocalDate endDate){
+        return ResponseEntity.ok(bookService.listBooksByYear(startDate,endDate));
+    }
+    @GetMapping("/by-price")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<List<BookResponse>> listBooksByPrice(
+            @RequestParam(defaultValue = "true") boolean ascending) {
+        List<BookResponse> books = bookService.listBooksByPrice(ascending);
+        return ResponseEntity.ok(books);
+    }
+    @GetMapping("/by-rate")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<List<BookResponse>> listBooksByRate(
+            @RequestParam(defaultValue = "true") boolean ascending) {
+        List<BookResponse> books = bookService.listBooksByRate(ascending);
+        return ResponseEntity.ok(books);
+    }
+
 
 
 }

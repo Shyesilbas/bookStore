@@ -18,7 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Pageable;
+
+import java.math.BigDecimal;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -166,7 +169,7 @@ public class BookService {
         if(request.newQuantity()<0){
             throw new IllegalStockUpdateException("quantity cannot be negative!");
         }
-        int updatedQuantity = book.get().getQuantity()+ request.newQuantity();
+        int updatedQuantity = request.newQuantity();
         book.get().setQuantity(updatedQuantity);
         bookRepository.save(book.get());
         String adminUsername = getAdmin();
@@ -178,8 +181,95 @@ public class BookService {
                 request.isbn(),
                 request.newQuantity()
         );
+    }
+    public BookResponse getBookDetails(String isbn){
+        Book book = bookRepository.findByIsbn(isbn)
+                .orElseThrow(()-> new BookNotFoundException("Book Not Found! Isbn : "+isbn));
 
+        return new BookResponse(
+                book.getTitle(),
+                book.getAuthor(),
+                book.getIsbn(),
+                book.getGenre(),
+                book.getRate(),
+                book.getPrice()
+        );
     }
 
+    public UpdateBookPriceResponse updatePrice(UpdatePriceRequest request){
+        String admin = getAdmin();
+        Book book = bookRepository.findByIsbn(request.isbn())
+                .orElseThrow(()-> new BookNotFoundException("Book Not Found! Isbn : " +request.isbn()));
+
+        BigDecimal RequestedNewPrice = request.newPrice();
+        if(RequestedNewPrice.compareTo(BigDecimal.ZERO)<0){
+            throw new IllegalPriceUpdateException("Price Cannot be null!");
+        }
+        if(request == null){
+            throw new BlankEntryException("All the fields have to be filled!");
+        }
+
+        book.setPrice(RequestedNewPrice);
+        bookRepository.save(book);
+        log.info("Admin '{}' Updated  the book price with ISBN '{}'. Book title: '{}' , new Price : '{}", admin, request.isbn(),book.getTitle(),RequestedNewPrice);
+
+        return new UpdateBookPriceResponse(
+                "Price Updated Successfully!",
+                request.isbn(),
+                book.getTitle(),
+                RequestedNewPrice
+        );
+    }
+
+    public List<BookResponse> listBooksByYear(LocalDate startDate , LocalDate endDate){
+        List<Book>books = bookRepository.findByReleaseDateYear(startDate,endDate);
+        startDate = LocalDate.of(startDate.getYear(), 1,1);
+        endDate = LocalDate.of(endDate.getYear(), 12,31);
+        if(books.isEmpty()){
+            throw new BookNotFoundException("No such book(s) found between year : "+startDate+" "+endDate);
+        }
+        return books.stream()
+                .map(book -> new BookResponse(
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getIsbn(),
+                        book.getGenre(),
+                        book.getRate(),
+                        book.getPrice()
+                ))
+                .toList();
+    }
+
+    public List<BookResponse> listBooksByPrice(boolean ascending){
+        return bookRepository.findAll()
+                .stream()
+                .sorted(ascending ? Comparator.comparing(Book::getPrice)
+                        : Comparator.comparing(Book::getPrice).reversed())
+                .map(book -> new BookResponse(
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getIsbn(),
+                        book.getGenre(),
+                        book.getRate(),
+                        book.getPrice()
+                ))
+                .toList();
+    }
+
+    public List<BookResponse> listBooksByRate(boolean ascending){
+        return bookRepository.findAll()
+                .stream()
+                .sorted(ascending ? Comparator.comparing(Book::getRate)
+                        : Comparator.comparing(Book::getRate).reversed())
+                .map(book -> new BookResponse(
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getIsbn(),
+                        book.getGenre(),
+                        book.getRate(),
+                        book.getPrice()
+                ))
+                .toList();
+    }
 
 }

@@ -104,6 +104,22 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(IllegalPriceUpdateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalPriceUpdateException(IllegalPriceUpdateException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(BlankEntryException.class)
+    public ResponseEntity<ErrorResponse> handleBlankEntryException(BlankEntryException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NO_CONTENT.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NO_CONTENT);
+    }
 
 
 }
