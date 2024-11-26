@@ -211,6 +211,7 @@ public class CustomerService {
                         soldBook.getIsbn(),
                         soldBook.getBuyer().getUsername(),
                         soldBook.getTitle(),
+                        soldBook.getBook().getGenre(),
                         soldBook.getSoldBookId(),
                         soldBook.getSaleDate(),
                         soldBook.getSalePrice()
