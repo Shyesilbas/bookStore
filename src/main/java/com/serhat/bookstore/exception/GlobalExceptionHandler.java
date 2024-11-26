@@ -208,5 +208,22 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(UsernameMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameMismatchException(UsernameMismatchException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
 
 }

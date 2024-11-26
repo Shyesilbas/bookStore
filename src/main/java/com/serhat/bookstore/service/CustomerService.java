@@ -62,13 +62,18 @@ public class CustomerService {
     }
 
     @Transactional
-    public DeleteCustomerResponse deleteCustomer(Principal principal){
+    public DeleteCustomerResponse deleteCustomer(DeleteCustomerRequest request , Principal principal){
         String username = principal.getName();
+
         Customer customer = customerRepository.findByUsername(username)
                 .orElseThrow(()-> new CustomerNotFoundException("Customer Not found : "+username));
-        if(customer.getTotalReservedBook()>0){
-            throw new AccountCannotBeDeletedException("You Have Reserved Books , after Bringing back , you can delete your account.");
+        if(customer.getActive_reservations()>0){
+            throw new AccountCannotBeDeletedException("You have active reservations , after bringing back , you can delete your account.");
         }
+        if(!request.username().equals(username) || !request.password().equals(customer.getPassword())){
+            throw new InvalidCredentialsException("Check your username again!");
+        }
+
         customerRepository.delete(customer);
         keycloakUserService.deleteKeycloakUser(customer);
         return new DeleteCustomerResponse(
