@@ -38,6 +38,13 @@ public class ReservedBookService {
         if (!book.getBookStatus().equals(BookStatus.AVAILABLE)) {
             throw new BookIsNotAvailableForReservationException("This book is not available for reservation right now.");
         }
+        if(customer.getActive_reservations() == 2){
+            throw new ActiveReservationLimitReachedException("You can only have 2 active Reservations");
+        }
+        ReservedBook existingReservation = reservedBookRepository.findByCustomerAndBookAndReservationStatus(customer, book, ReservationStatus.ON_RESERVATION);
+        if (existingReservation != null) {
+            throw new BookAlreadyReservedByThisCustomerException("You have active reservation on this book.");
+        }
 
         LocalDateTime reservationDate = LocalDateTime.now();
         log.info("Reservation date (today): " + reservationDate);
@@ -62,7 +69,7 @@ public class ReservedBookService {
                 .reservationDate(reservationDate)
                 .reservedUntil(reservedUntil)
                 .reservationFee(reservationFee)
-                .isFeePayed(IsFeePayed.JUST_RESERVED)
+                .isFeePayed(IsFeePayed.ON_RESERVATION)
                 .reservationStatus(ReservationStatus.ON_RESERVATION)
                 .book(book)
                 .customer(customer)
@@ -70,6 +77,7 @@ public class ReservedBookService {
         if(reservedBook.getReservationStatus().equals(ReservationStatus.ON_RESERVATION)){
             reservedBook.setReturn_date(null);
         }
+
 
         book.setQuantity(book.getQuantity() - 1);
         log.info(String.format("Book quantity updated for '%s'. New quantity: %d", book.getTitle(), book.getQuantity()));
@@ -100,22 +108,44 @@ public class ReservedBookService {
         );
     }
 
+
+
     @Transactional
     public ReturnReservedBookResponse returnReservedBook (ReturnReservedBookRequest request , Principal principal){
         String username = principal.getName().toLowerCase();
-        ReservedBook reservedBook = reservedBookRepository.findByIsbn(request.isbn())
+        ReservedBook reservedBook = reservedBookRepository.findById(request.reservationId())
                 .orElseThrow(()-> new ReservationNotFoundException("No current reservation found on Book : "+ request.isbn()));
         Customer customer = customerRepository.findByUsername(username)
                 .orElseThrow(()-> new CustomerNotFoundException("Customer not found for username : "+username));
         Book book = bookRepository.findByIsbn(request.isbn())
                 .orElseThrow(()-> new BookNotFoundException("Book Not Found : "+request.isbn()));
 
-        if(reservedBook.getIsFeePayed().equals(IsFeePayed.NOT_PAYED)){
+        if(reservedBook.getIsFeePayed().equals(IsFeePayed.NOT_PAYED) || reservedBook.getIsFeePayed().equals(IsFeePayed.ON_RESERVATION)){
+            log.error("Reservation fee not paid for book: {}", reservedBook.getTitle());
             throw new ReservationFeeNotPayedException("You have to pay your reservation Fee. : "+reservedBook.getReservationFee());
         }
         if(!reservedBook.getCustomer().equals(customer)){
+            log.error("Customer {} has no reservation on book: {}", username, reservedBook.getTitle());
             throw new CustomerHasNoReservationException(username+" Has no reservation on book : "+reservedBook.getTitle());
         }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (reservedBook.getReservedUntil().isBefore(now)) {
+            reservedBook.setReservationStatus(ReservationStatus.NOT_BROUGHT_BACK);
+            log.warn(String.format("Reservation for book '%s' by user '%s' is overdue.", reservedBook.getBook().getTitle(), username));
+        } else {
+            reservedBook.setReservationStatus(ReservationStatus.BROUGHT_BACK);
+        }
+
+        if(reservedBook.getReservationStatus().equals(ReservationStatus.NOT_BROUGHT_BACK)){
+            long daysLate = java.time.Duration.between(reservedBook.getReservedUntil(), now).toDays();
+            BigDecimal lateFee = BigDecimal.valueOf(daysLate);
+            reservedBook.setReservationFee(reservedBook.getReservationFee().add(lateFee));
+            reservedBook.setIsFeePayed(IsFeePayed.NOT_PAYED);
+            log.info("Late fee added to reservation for book '{}'. New fee: {}", reservedBook.getBook().getTitle(), lateFee);
+        }
+
+
         reservedBook.setIsFeePayed(IsFeePayed.PAYED);
         reservedBook.setReservationStatus(ReservationStatus.BROUGHT_BACK);
         book.setQuantity(book.getQuantity()+1);
@@ -137,7 +167,6 @@ public class ReservedBookService {
                 reservedBook.getReservedBookId(),
                 book.getTitle()
         );
-
     }
 
     public List<ActiveReservationsResponse> activeReservationsList (Principal principal){
@@ -157,7 +186,8 @@ public class ReservedBookService {
                         reservedBook.getReservationDate(),
                         reservedBook.getReservedUntil(),
                         null,
-                        reservedBook.getReservationFee()
+                        reservedBook.getReservationFee(),
+                        reservedBook.getReservationStatus()
                 ))
                 .toList();
     }
@@ -177,8 +207,32 @@ public class ReservedBookService {
                         reservedBook.getBook().getTitle(),
                         reservedBook.getReservationDate(),
                         reservedBook.getReservedUntil(),
+                        reservedBook.getReturn_date(),
+                        reservedBook.getReservationFee(),
+                        reservedBook.getReservationStatus()
+                ))
+                .toList();
+    }
+
+    public List<LateReservationResponse> lateReservationsList(Principal principal){
+        String username = principal.getName();
+        log.info("{} displayed the active reservations.", username);
+        List<ReservedBook> lateReservations = reservedBookRepository.findByReservationStatus(ReservationStatus.NOT_BROUGHT_BACK);
+        if(lateReservations.isEmpty()){
+            throw new NoExpiredReservationsException("No Late Reservation Found");
+        }
+        return reservedBookRepository.findByReservationStatus(ReservationStatus.NOT_BROUGHT_BACK)
+                .stream()
+                .map(reservedBook -> new LateReservationResponse(
+                        reservedBook.getCustomer().getUsername(),
+                        reservedBook.getReservedBookId(),
+                        reservedBook.getBook().getIsbn(),
+                        reservedBook.getBook().getTitle(),
+                        reservedBook.getReservationDate(),
+                        reservedBook.getReservedUntil(),
                         null,
-                        reservedBook.getReservationFee()
+                        reservedBook.getReservationFee(),
+                        reservedBook.getReservationStatus()
                 ))
                 .toList();
     }

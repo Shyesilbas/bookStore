@@ -5,7 +5,7 @@ import com.serhat.bookstore.model.ReservationStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record ActiveReservationsResponse(
+public record LateReservationResponse(
         String customerUsername,
         Long reservationId,
         String isbn,

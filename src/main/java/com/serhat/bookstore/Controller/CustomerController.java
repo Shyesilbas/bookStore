@@ -47,4 +47,9 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.expiredReservationsList(principal));
     }
 
+    @PostMapping("/payReservationFee")
+    public ResponseEntity<PayReservationFeeResponse> payReservationFee (@RequestBody PayReservationFeeRequest request , Principal principal){
+        return ResponseEntity.ok(customerService.payReservationFee(request,principal));
+    }
+
 }

@@ -35,4 +35,10 @@ public class ReservedBookController {
         return ResponseEntity.ok(reservedBookService.expiredReservationsList(principal));
     }
 
+    @GetMapping("/listLateReservations")
+    public ResponseEntity<List<LateReservationResponse>> getLateReservations(Principal principal){
+        return ResponseEntity.ok(reservedBookService.lateReservationsList(principal));
+    }
+
+
 }

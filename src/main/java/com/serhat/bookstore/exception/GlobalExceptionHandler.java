@@ -176,5 +176,21 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(ActiveReservationLimitReachedException.class)
+    public ResponseEntity<ErrorResponse> handleActiveReservationLimitReachedException(ActiveReservationLimitReachedException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_ACCEPTABLE.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_ACCEPTABLE);
+    }
+    @ExceptionHandler(BookAlreadyReservedByThisCustomerException.class)
+    public ResponseEntity<ErrorResponse> handleBookAlreadyReservedByThisCustomerException(BookAlreadyReservedByThisCustomerException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_ACCEPTABLE.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_ACCEPTABLE);
+    }
 
 }

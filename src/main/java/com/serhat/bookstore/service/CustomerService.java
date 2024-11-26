@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -142,7 +143,8 @@ public class CustomerService {
                         reservedBook.getReservationDate(),
                         reservedBook.getReservedUntil(),
                         null,
-                        reservedBook.getReservationFee()
+                        reservedBook.getReservationFee(),
+                        reservedBook.getReservationStatus()
                 ))
                 .toList();
     }
@@ -165,9 +167,29 @@ public class CustomerService {
                         reservedBook.getReservationDate(),
                         reservedBook.getReservedUntil(),
                         null,
-                        reservedBook.getReservationFee()
+                        reservedBook.getReservationFee(),
+                        reservedBook.getReservationStatus()
                 ))
                 .toList();
+    }
+
+    @Transactional
+    public PayReservationFeeResponse payReservationFee (PayReservationFeeRequest request , Principal principal){
+        String username = principal.getName().toLowerCase();
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(()-> new CustomerNotFoundException("Customer not found for username : "+username));
+        ReservedBook reservedBook = reservedBookRepository.findById(request.reservationId())
+                .orElseThrow(()-> new ReservationNotFoundException("Reservation Not Found for id : "+request.reservationId()));
+
+        reservedBook.setIsFeePayed(IsFeePayed.PAYED);
+        reservedBookRepository.save(reservedBook);
+        return new PayReservationFeeResponse(
+                "Reservation Fee payed Successfully",
+                customer.getUsername(),
+                request.reservationId(),
+                reservedBook.getReservationFee(),
+                LocalDateTime.now()
+        );
     }
 
 }

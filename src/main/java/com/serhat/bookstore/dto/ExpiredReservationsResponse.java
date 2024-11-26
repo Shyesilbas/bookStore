@@ -1,5 +1,7 @@
 package com.serhat.bookstore.dto;
 
+import com.serhat.bookstore.model.ReservationStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -11,7 +13,8 @@ public record ExpiredReservationsResponse (
         LocalDateTime by,
         LocalDateTime until,
         LocalDateTime returnDate,
-        BigDecimal reservationFee
+        BigDecimal reservationFee,
+        ReservationStatus status
 
 ){
 
