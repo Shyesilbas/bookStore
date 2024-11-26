@@ -31,6 +31,8 @@ public class Book {
     private BookStatus bookStatus;
     private int quantity;
     private BigDecimal price;
+    int total_sold;
+    int total_reserved;
 
 
 }

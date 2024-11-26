@@ -1,4 +1,4 @@
-package com.serhat.bookstore.service;
+package com.serhat.bookstore.dto;
 
 public record UpdatePhoneNumberRequest(
         String newPhone

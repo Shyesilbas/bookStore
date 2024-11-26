@@ -169,6 +169,9 @@ public class BookService {
         if(request.newQuantity()<0){
             throw new IllegalStockUpdateException("quantity cannot be negative!");
         }
+        if(request.newQuantity() == 0){
+            book.get().setBookStatus(BookStatus.OUT_OF_STOCKS);
+        }
         int updatedQuantity = request.newQuantity();
         book.get().setQuantity(updatedQuantity);
         bookRepository.save(book.get());

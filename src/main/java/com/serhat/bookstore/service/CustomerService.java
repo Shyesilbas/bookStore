@@ -4,9 +4,7 @@ import com.serhat.bookstore.Repository.CustomerRepository;
 import com.serhat.bookstore.Repository.ReservedBookRepository;
 import com.serhat.bookstore.dto.*;
 import com.serhat.bookstore.exception.*;
-import com.serhat.bookstore.model.Customer;
-import com.serhat.bookstore.model.IsCustomerVerified;
-import com.serhat.bookstore.model.MemberShipStatus;
+import com.serhat.bookstore.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -123,6 +121,53 @@ public class CustomerService {
                 customer.getUsername(),
                 request.newEmail()
         );
+    }
+    public List<ActiveReservationsResponse> activeReservationsList (Principal principal){
+        String username = principal.getName().toLowerCase();
+        Customer customer = customerRepository.findByUsername(username)
+                        .orElseThrow(()-> new CustomerNotFoundException("Customer Not Found"));
+
+        log.info(" Customer {} displayed their active reservations.", username);
+        List<ReservedBook> activeReservations = reservedBookRepository.findByCustomer_CustomerIdAndReservationStatus(customer.getCustomerId(), ReservationStatus.ON_RESERVATION);
+        if(activeReservations.isEmpty()){
+            throw new NoActiveReservationsException("No Active Reservation Found");
+        }
+        return reservedBookRepository.findByCustomer_CustomerIdAndReservationStatus(customer.getCustomerId(), ReservationStatus.ON_RESERVATION)
+                .stream()
+                .map(reservedBook -> new ActiveReservationsResponse(
+                        reservedBook.getCustomer().getUsername(),
+                        reservedBook.getReservedBookId(),
+                        reservedBook.getBook().getIsbn(),
+                        reservedBook.getBook().getTitle(),
+                        reservedBook.getReservationDate(),
+                        reservedBook.getReservedUntil(),
+                        null,
+                        reservedBook.getReservationFee()
+                ))
+                .toList();
+    }
+    public List<ExpiredReservationsResponse> expiredReservationsList (Principal principal){
+        String username = principal.getName().toLowerCase();
+        Customer customer = customerRepository.findByUsername(username)
+                        .orElseThrow(()-> new CustomerNotFoundException("Customer not found for "+username));
+        log.info("{} displayed the active reservations.", username);
+        List<ReservedBook> expiredReservations = reservedBookRepository.findByCustomer_CustomerIdAndReservationStatus(customer.getCustomerId(), ReservationStatus.BROUGHT_BACK);
+        if(expiredReservations.isEmpty()){
+            throw new NoExpiredReservationsException("No Expired Reservation Found");
+        }
+        return reservedBookRepository.findByCustomer_CustomerIdAndReservationStatus(customer.getCustomerId(), ReservationStatus.BROUGHT_BACK)
+                .stream()
+                .map(reservedBook -> new ExpiredReservationsResponse(
+                        reservedBook.getCustomer().getUsername(),
+                        reservedBook.getReservedBookId(),
+                        reservedBook.getBook().getIsbn(),
+                        reservedBook.getBook().getTitle(),
+                        reservedBook.getReservationDate(),
+                        reservedBook.getReservedUntil(),
+                        null,
+                        reservedBook.getReservationFee()
+                ))
+                .toList();
     }
 
 }

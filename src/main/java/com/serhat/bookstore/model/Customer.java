@@ -32,6 +32,7 @@ public class Customer {
     @Column(name = "total_reserved_book")
     private int totalReservedBook;
     private int totalBoughtBook;
+    private int active_reservations;
 
 
 }

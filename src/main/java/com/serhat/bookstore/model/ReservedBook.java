@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -23,6 +24,13 @@ public class ReservedBook {
     private LocalDateTime reservationDate;
     private LocalDateTime reservedUntil;
     private BigDecimal reservationFee;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "is_fee_payed")
+    private IsFeePayed isFeePayed;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "reservation_status")
+    private ReservationStatus reservationStatus;
+    private LocalDateTime return_date;
 
     @ManyToOne
     @JoinColumn(name = "customer_id",nullable = false)

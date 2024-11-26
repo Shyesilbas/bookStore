@@ -120,6 +120,61 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NO_CONTENT);
     }
-
+    @ExceptionHandler(BookIsNotAvailableForReservationException.class)
+    public ResponseEntity<ErrorResponse> handleBookIsNotAvailableForReservationException(BookIsNotAvailableForReservationException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_ACCEPTABLE.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_ACCEPTABLE);
+    }
+    @ExceptionHandler(InvalidReservationDateException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidReservationDateException(InvalidReservationDateException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_ACCEPTABLE.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_ACCEPTABLE);
+    }
+    @ExceptionHandler(ReservationNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleReservationNotFoundException(ReservationNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(ReservationFeeNotPayedException.class)
+    public ResponseEntity<ErrorResponse> handleReservationFeeNotPayedException(ReservationFeeNotPayedException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.PAYMENT_REQUIRED.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.PAYMENT_REQUIRED);
+    }
+    @ExceptionHandler(CustomerHasNoReservationException.class)
+    public ResponseEntity<ErrorResponse> handleCustomerHasNoReservationException(CustomerHasNoReservationException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(NoActiveReservationsException.class)
+    public ResponseEntity<ErrorResponse> handleNoActiveReservationsException(NoActiveReservationsException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(NoExpiredReservationsException.class)
+    public ResponseEntity<ErrorResponse> handleNoExpiredReservationsException(NoExpiredReservationsException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
 
 }

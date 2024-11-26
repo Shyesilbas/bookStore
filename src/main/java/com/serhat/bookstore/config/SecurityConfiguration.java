@@ -37,6 +37,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/book/delete/{isbn}").hasRole("ADMIN")
                         .requestMatchers("/api/book/addBook").hasRole("ADMIN")
                         .requestMatchers("/api/book/updateStock").hasRole("ADMIN")
+                        .requestMatchers("/api/reservation/listActiveReservations").hasRole("ADMIN")
+                        .requestMatchers("/api/reservation/listExpiredReservations").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2-> oauth2
                         .jwt(Customizer.withDefaults())

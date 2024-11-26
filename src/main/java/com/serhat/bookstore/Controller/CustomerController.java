@@ -1,15 +1,15 @@
 package com.serhat.bookstore.Controller;
 
 import com.serhat.bookstore.dto.*;
-import com.serhat.bookstore.model.Customer;
 import com.serhat.bookstore.service.CustomerService;
-import com.serhat.bookstore.service.UpdatePhoneNumberRequest;
+import com.serhat.bookstore.dto.UpdatePhoneNumberRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RequestMapping("/api/customer")
 @RestController
@@ -36,6 +36,15 @@ public class CustomerController {
     @PutMapping("/updateEmail")
     public ResponseEntity<UpdateEmailResponse> updateEmail(@RequestBody UpdateEmailRequest request , Principal principal){
         return ResponseEntity.ok(customerService.updateEmail(request,principal));
+    }
+
+    @GetMapping("/listActiveReservations")
+    public ResponseEntity<List<ActiveReservationsResponse>> listActiveReservations (Principal principal){
+        return ResponseEntity.ok(customerService.activeReservationsList(principal));
+    }
+    @GetMapping("/listExpiredReservations")
+    public ResponseEntity<List<ExpiredReservationsResponse>> listExpiredReservations (Principal principal){
+        return ResponseEntity.ok(customerService.expiredReservationsList(principal));
     }
 
 }
