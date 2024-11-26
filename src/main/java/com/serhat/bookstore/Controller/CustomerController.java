@@ -52,4 +52,9 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.payReservationFee(request,principal));
     }
 
+    @GetMapping("/purchaseHistory")
+    public ResponseEntity<List<SoldBookResponse>> purchaseHistory (Principal principal){
+        return ResponseEntity.ok(customerService.listPurchaseHistory(principal));
+    }
+
 }

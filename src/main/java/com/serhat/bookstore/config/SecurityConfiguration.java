@@ -33,6 +33,7 @@ public class SecurityConfiguration {
                         .requestMatchers("api/book/details").permitAll()
                         .requestMatchers("/api/book/byYear").permitAll()
                         .requestMatchers("/api/book/byRateRange/{minRange}/{maxRange}").permitAll()
+                        .requestMatchers("/api/buy/mostSellers","api/buy/mostSellersByGenre","/api/buy/mostSellersOfAuthor").permitAll()
                         .requestMatchers("api/book/updatePrice").hasRole("ADMIN")
                         .requestMatchers("/api/book/delete/{isbn}").hasRole("ADMIN")
                         .requestMatchers("/api/book/addBook").hasRole("ADMIN")

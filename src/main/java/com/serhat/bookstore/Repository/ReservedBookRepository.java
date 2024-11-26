@@ -1,10 +1,7 @@
 package com.serhat.bookstore.Repository;
 
 import com.serhat.bookstore.dto.ActiveReservationsResponse;
-import com.serhat.bookstore.model.Book;
-import com.serhat.bookstore.model.Customer;
-import com.serhat.bookstore.model.ReservationStatus;
-import com.serhat.bookstore.model.ReservedBook;
+import com.serhat.bookstore.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,4 +19,6 @@ public interface ReservedBookRepository extends JpaRepository<ReservedBook,Long>
     List<ReservedBook> findByCustomer_CustomerIdAndReservationStatus(Long customerId , ReservationStatus reservationStatus);
 
     ReservedBook findByCustomerAndBookAndReservationStatus(Customer customer, Book book, ReservationStatus reservationStatus);
+
+
 }

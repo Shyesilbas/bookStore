@@ -192,5 +192,21 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_ACCEPTABLE);
     }
+    @ExceptionHandler(BookOutOfStocksException.class)
+    public ResponseEntity<ErrorResponse> handleBookOutOfStocksException(BookOutOfStocksException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(NoBooksSoldException.class)
+    public ResponseEntity<ErrorResponse> handleNoBooksSoldException(NoBooksSoldException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
 
 }

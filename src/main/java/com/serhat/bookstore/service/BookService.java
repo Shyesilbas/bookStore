@@ -144,9 +144,9 @@ public class BookService {
     }
 
     public List<BookResponse> findBookByTitle(String title){
-        List<Book> books = bookRepository.findByTitle(title);
-        if(books.isEmpty()){
-            throw new BookNotFoundByTitleException("No Such book found for title : "+title);
+        Optional<Book> books = bookRepository.findByTitle(title);
+        if (books.isEmpty()){
+            throw new BookNotFoundException("Book Not Found : "+title);
         }
         return books.stream()
                 .map(book -> new BookResponse(

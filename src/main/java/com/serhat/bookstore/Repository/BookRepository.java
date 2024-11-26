@@ -26,11 +26,13 @@ public interface BookRepository extends JpaRepository<Book,Long> {
 
     List<Book> findByAuthor(String author);
 
-    List<Book> findByTitle(String title);
+    Optional<Book> findByTitle(String title);
 
     @Query("SELECT b FROM Book b WHERE b.releaseDate BETWEEN :startDate AND :endDate")
     List<Book> findByReleaseDateYear(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    Optional<Book> findBookByTitle(String title);
 }

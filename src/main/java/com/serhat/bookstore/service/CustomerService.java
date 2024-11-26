@@ -2,6 +2,7 @@ package com.serhat.bookstore.service;
 
 import com.serhat.bookstore.Repository.CustomerRepository;
 import com.serhat.bookstore.Repository.ReservedBookRepository;
+import com.serhat.bookstore.Repository.SoldBookRepository;
 import com.serhat.bookstore.dto.*;
 import com.serhat.bookstore.exception.*;
 import com.serhat.bookstore.model.*;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -21,8 +23,8 @@ import java.util.List;
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final ReservedBookRepository reservedBookRepository;
-    private final PasswordEncoder passwordEncoder;
     private final KeycloakUserService keycloakUserService;
+    private final SoldBookRepository soldBookRepository;
 
     @Transactional
     public CustomerResponse createCustomer(CustomerRequest request){
@@ -190,6 +192,30 @@ public class CustomerService {
                 reservedBook.getReservationFee(),
                 LocalDateTime.now()
         );
+    }
+
+    @Transactional
+    public List<SoldBookResponse> listPurchaseHistory(Principal principal){
+        String username = principal.getName();
+        log.info(username + " is listing their Purchase history.. ");
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(()-> new CustomerNotFoundException("Customer Not Found : "+username));
+        List<SoldBook> soldBooks = soldBookRepository.findByBuyer_CustomerId(customer.getCustomerId());
+        if(soldBooks.isEmpty()){
+            throw new NoBooksSoldException(" You do not purchase any book yet.");
+        }
+        soldBooks.sort(Comparator.comparing(SoldBook::getSaleDate).reversed());
+        return soldBooks
+                .stream()
+                .map(soldBook -> new SoldBookResponse(
+                        soldBook.getIsbn(),
+                        soldBook.getBuyer().getUsername(),
+                        soldBook.getTitle(),
+                        soldBook.getSoldBookId(),
+                        soldBook.getSaleDate(),
+                        soldBook.getSalePrice()
+                ))
+                .toList();
     }
 
 }
