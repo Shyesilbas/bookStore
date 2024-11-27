@@ -23,7 +23,7 @@ public class Customer {
     private String password;
     @Column(name = "email",nullable = false,unique = true)
     private String email;
-    @Column(name = "phone",nullable = false,unique = true)
+    @Column(name = "phone",unique = true)
     private String phone;
     @Enumerated(EnumType.STRING)
     private MemberShipStatus memberShipStatus;

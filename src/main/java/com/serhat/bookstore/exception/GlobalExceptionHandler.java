@@ -225,5 +225,38 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(UnverifiedAccountException.class)
+    public ResponseEntity<ErrorResponse> handleUnverifiedAccountException(UnverifiedAccountException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(SamePlanForUpdateRequestException.class)
+    public ResponseEntity<ErrorResponse> handleSamePlanForUpdateRequestException(SamePlanForUpdateRequestException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(UnknownPlanException.class)
+    public ResponseEntity<ErrorResponse> handleUnknownPlanException(UnknownPlanException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CustomerAlreadyVerifiedException.class)
+    public ResponseEntity<ErrorResponse> handleCustomerAlreadyVerifiedException(CustomerAlreadyVerifiedException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
 
 }

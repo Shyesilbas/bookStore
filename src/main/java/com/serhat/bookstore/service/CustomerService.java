@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -40,19 +42,17 @@ public class CustomerService {
         if(customerRepository.existsByPhone(request.phone())){
             throw new PhoneAlreadyInUseException("Account Found related to Phone Number");
         }
-
            Customer customer = Customer.builder()
                    .username(request.username())
                    .password(request.password())
-                   .memberShipStatus(MemberShipStatus.BASIC)
-                   .isUserVerified(IsCustomerVerified.VERIFIED)
+                   .memberShipStatus(request.phone().isBlank() ? MemberShipStatus.BASIC : request.memberShipStatus())
+                   .isUserVerified(request.phone().isBlank() ? IsCustomerVerified.UNVERIFIED : IsCustomerVerified.VERIFIED)
                    .email(request.email())
                    .phone(request.phone())
                    .build();
 
            customerRepository.save(customer);
            keycloakUserService.createKeycloakUser(customer);
-
 
            return new CustomerResponse(
                    "Account Created Successfully",
@@ -81,6 +81,57 @@ public class CustomerService {
                 customer.getCustomerId(),
                 customer.getUsername(),
                 customer.getEmail()
+        );
+    }
+
+    @Transactional
+    public UpdateMembershipStatusResponse updateMemberShip (UpdateMemberShipRequest request , Principal principal){
+        String username = principal.getName().toLowerCase();
+        log.info(username+" Updating the membership.");
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(()-> new CustomerNotFoundException("Customer Not found : "+username));
+        if (customer.getIsUserVerified().equals(IsCustomerVerified.UNVERIFIED)){
+            throw new UnverifiedAccountException("You have to verify your account to update your membership status");
+        }
+        if (request.status() == null) {
+            throw new UnknownPlanException("Membership status cannot be null");
+        }
+        if(customer.getMemberShipStatus().equals(request.status())){
+            throw new SamePlanForUpdateRequestException("Your plan is already "+request.status());
+        }
+
+        BigDecimal fee = request.status().getFee();
+
+        MemberShipStatus currentPlan = customer.getMemberShipStatus();
+        customer.setMemberShipStatus(request.status());
+        customerRepository.save(customer);
+
+        return new UpdateMembershipStatusResponse(
+                customer.getUsername(),
+                currentPlan,
+                request.status(),
+                fee
+        );
+    }
+
+    @Transactional
+    public VerifyCustomerResponse verifyCustomer (VerificationRequest request , Principal principal){
+        String username = principal.getName().toLowerCase();
+        log.info(username+" verifying themself.");
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(()-> new CustomerNotFoundException("Customer Not found : "+username));
+        if (customer.getPhone() != null && !customer.getPhone().isEmpty()) {
+            throw new CustomerAlreadyVerifiedException("You already verified your account by entering phone number.");
+        }
+        customer.setPhone(request.phone());
+        customer.setIsUserVerified(IsCustomerVerified.VERIFIED);
+        customer.setMemberShipStatus(MemberShipStatus.BASIC);
+        customerRepository.save(customer);
+
+        return new VerifyCustomerResponse(
+                "Thank you for verifying your account! Your membership plan has been set to BASIC automatically. You can change it.",
+                customer.getUsername(),
+                request.phone()
         );
     }
 

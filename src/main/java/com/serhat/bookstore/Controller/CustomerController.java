@@ -57,4 +57,14 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.listPurchaseHistory(principal));
     }
 
+    @PutMapping("/verifyCustomer")
+    public ResponseEntity<VerifyCustomerResponse> verifyCustomer (@RequestBody VerificationRequest request , Principal principal){
+        return ResponseEntity.ok(customerService.verifyCustomer(request, principal));
+    }
+
+    @PutMapping("/updatePlan")
+    public ResponseEntity<UpdateMembershipStatusResponse> updateMembership(@RequestBody UpdateMemberShipRequest request ,Principal principal){
+        return ResponseEntity.ok(customerService.updateMemberShip(request, principal));
+    }
+
 }
