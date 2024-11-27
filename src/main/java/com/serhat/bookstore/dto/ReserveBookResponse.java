@@ -11,6 +11,7 @@ public record ReserveBookResponse(
         String customerUsername,
         LocalDateTime by,
         LocalDateTime until,
-        BigDecimal reservationFee
+        String reservationFee,
+        BigDecimal totalSaved
 ) {
 }

@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -33,6 +35,7 @@ public class Customer {
     private int totalReservedBook;
     private int totalBoughtBook;
     private int active_reservations;
+    private BigDecimal total_saved;
 
 
 }

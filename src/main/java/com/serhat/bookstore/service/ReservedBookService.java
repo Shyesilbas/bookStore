@@ -58,10 +58,21 @@ public class ReservedBookService {
             throw new InvalidReservationDateException("Reservation end date must be after today.");
         }
 
+        long freeDays = switch (customer.getMemberShipStatus()){
+            case VIP -> 14;
+            case PREMIUM -> 7;
+            default -> 0;
+        };
+
         BigDecimal dailyFee = BigDecimal.ONE;
-        BigDecimal reservationFee = book.getPrice()
-                .multiply(new BigDecimal("0.10"))
-                .add(dailyFee.multiply(BigDecimal.valueOf(daysBetween)));
+        long chargeableDays = Math.max(0, daysBetween - freeDays);
+        BigDecimal baseFee = customer.getMemberShipStatus() == MemberShipStatus.VIP ? BigDecimal.ZERO : book.getPrice().multiply(new BigDecimal("0.10"));
+        BigDecimal reservationFee = baseFee.add(dailyFee.multiply(BigDecimal.valueOf(chargeableDays)));
+
+        BigDecimal totalSaved = dailyFee.multiply(BigDecimal.valueOf(Math.min(daysBetween, freeDays)));
+        if (customer.getMemberShipStatus() == MemberShipStatus.VIP) {
+            totalSaved = totalSaved.add(book.getPrice().multiply(new BigDecimal("0.10")));
+        }
 
         ReservedBook reservedBook = ReservedBook.builder()
                 .title(book.getTitle())
@@ -88,6 +99,7 @@ public class ReservedBookService {
 
         customer.setTotalReservedBook(customer.getTotalReservedBook() + 1);
         customer.setActive_reservations(customer.getActive_reservations()+1);
+        customer.setTotal_saved(totalSaved);
         log.info(String.format("Customer's total reserved books updated to: %d", customer.getTotalReservedBook()));
 
         book.setTotal_reserved(book.getTotal_reserved() + 1);
@@ -97,6 +109,10 @@ public class ReservedBookService {
         customerRepository.save(customer);
         reservedBookRepository.save(reservedBook);
 
+        String feeDisplay = reservationFee.compareTo(BigDecimal.ZERO) == 0 ? "FREE" : reservationFee.toString();
+
+
+
         return new ReserveBookResponse(
                 "Reservation is successfully placed!",
                 reservedBook.getTitle(),
@@ -104,7 +120,8 @@ public class ReservedBookService {
                 customer.getUsername(),
                 reservedBook.getReservationDate(),
                 reservedBook.getReservedUntil(),
-                reservationFee
+                feeDisplay,
+                totalSaved
         );
     }
 
@@ -120,7 +137,10 @@ public class ReservedBookService {
         Book book = bookRepository.findByIsbn(request.isbn())
                 .orElseThrow(()-> new BookNotFoundException("Book Not Found : "+request.isbn()));
 
-        if(reservedBook.getIsFeePayed().equals(IsFeePayed.NOT_PAYED) || reservedBook.getIsFeePayed().equals(IsFeePayed.ON_RESERVATION)){
+
+        if(reservedBook.getReservationFee().compareTo(BigDecimal.ZERO)>0 &&
+                reservedBook.getIsFeePayed().equals(IsFeePayed.NOT_PAYED) ||
+                reservedBook.getIsFeePayed().equals(IsFeePayed.ON_RESERVATION)){
             log.error("Reservation fee not paid for book: {}", reservedBook.getTitle());
             throw new ReservationFeeNotPayedException("You have to pay your reservation Fee. : "+reservedBook.getReservationFee());
         }

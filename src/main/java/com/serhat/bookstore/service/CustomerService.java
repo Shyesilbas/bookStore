@@ -49,6 +49,7 @@ public class CustomerService {
                    .isUserVerified(request.phone().isBlank() ? IsCustomerVerified.UNVERIFIED : IsCustomerVerified.VERIFIED)
                    .email(request.email())
                    .phone(request.phone())
+                   .total_saved(BigDecimal.ZERO)
                    .build();
 
            customerRepository.save(customer);
