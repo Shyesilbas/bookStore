@@ -16,4 +16,6 @@ public interface CustomerRepository extends JpaRepository<Customer,Long> {
     @Query("SELECT c FROM Customer c WHERE LOWER(c.username) = LOWER(:username)")
 
     Optional<Customer> findByUsername(String username);
+
+
 }

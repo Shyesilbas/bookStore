@@ -89,13 +89,15 @@ public class ReservedBookService {
             reservedBook.setReturn_date(null);
         }
 
+        if (book.getQuantity() == 0) {
+            book.setBookStatus(BookStatus.OUT_OF_STOCKS);
+            throw new BookIsNotAvailableForReservationException("Book is out of stocks right now.");
+        }
 
         book.setQuantity(book.getQuantity() - 1);
         log.info(String.format("Book quantity updated for '%s'. New quantity: %d", book.getTitle(), book.getQuantity()));
 
-        if (book.getQuantity() == 0) {
-            book.setBookStatus(BookStatus.OUT_OF_STOCKS);
-        }
+
 
         customer.setTotalReservedBook(customer.getTotalReservedBook() + 1);
         customer.setActive_reservations(customer.getActive_reservations()+1);

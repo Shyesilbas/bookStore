@@ -33,6 +33,8 @@ public class Book {
     private BigDecimal price;
     int total_sold;
     int total_reserved;
+    @Column(name = "total_comments")
+    private int totalComments;
 
 
 }

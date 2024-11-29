@@ -36,6 +36,21 @@ public class Customer {
     private int totalBoughtBook;
     private int active_reservations;
     private BigDecimal total_saved;
+    @Column(name = "total_comments")
+    private int totalComments;
+    @Column(name = "total_likes")
+    private int totalLikes;
+    @Column(name = "total_dislikes")
+    private int totalDislikes;
+    @Column(name = "total_reposts")
+    private int totalReposts;
+    @Column(name = "total_likes_received")
+    private int totalLikesReceived;
+    @Column(name = "total_dislikes_received")
+    private int totalDislikesReceived;
+    @Column(name = "total_reposts_received")
+    private int totalRepostsReceived;
+
 
 
 }
