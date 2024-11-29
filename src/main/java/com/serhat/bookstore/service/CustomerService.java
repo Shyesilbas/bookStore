@@ -1,5 +1,6 @@
 package com.serhat.bookstore.service;
 
+import com.serhat.bookstore.Repository.CommentRepository;
 import com.serhat.bookstore.Repository.CustomerRepository;
 import com.serhat.bookstore.Repository.ReservedBookRepository;
 import com.serhat.bookstore.Repository.SoldBookRepository;
@@ -27,6 +28,7 @@ public class CustomerService {
     private final ReservedBookRepository reservedBookRepository;
     private final KeycloakUserService keycloakUserService;
     private final SoldBookRepository soldBookRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public CustomerResponse createCustomer(CustomerRequest request){
@@ -272,6 +274,31 @@ public class CustomerService {
                         soldBook.getSoldBookId(),
                         soldBook.getSaleDate(),
                         soldBook.getSalePrice()
+                ))
+                .toList();
+    }
+
+    public List<CommentResponse> showComments (Principal principal){
+        String username = principal.getName().toLowerCase();
+        log.info(username+" is trying to fetch their comments");
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(()-> new CustomerNotFoundException("Customer Not Found "+username));
+        List<Comment> comments = commentRepository.findByCustomer(customer);
+
+        if(comments.isEmpty()){
+            log.warn("No comments found for user: " + username);
+            throw new CommentNotFoundException("No comment found for customer : "+username);
+        }
+
+        return comments.stream()
+                .map(comment -> new CommentResponse(
+                        customer.getUsername(),
+                        comment.getCommentId(),
+                        comment.getBook().getTitle(),
+                        comment.getComment(),
+                        comment.getLikes(),
+                        comment.getDislikes(),
+                        comment.getRepost()
                 ))
                 .toList();
     }

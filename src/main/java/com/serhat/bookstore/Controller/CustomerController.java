@@ -19,6 +19,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
+
     @PostMapping("/create")
     public ResponseEntity<CustomerResponse> createCustomer(@RequestBody CustomerRequest request){
         return ResponseEntity.ok(customerService.createCustomer(request));
@@ -65,6 +66,11 @@ public class CustomerController {
     @PutMapping("/updatePlan")
     public ResponseEntity<UpdateMembershipStatusResponse> updateMembership(@RequestBody UpdateMemberShipRequest request ,Principal principal){
         return ResponseEntity.ok(customerService.updateMemberShip(request, principal));
+    }
+
+    @GetMapping("/getComments")
+    public ResponseEntity<List<CommentResponse>> getComments (Principal principal){
+        return ResponseEntity.ok(customerService.showComments(principal));
     }
 
 }

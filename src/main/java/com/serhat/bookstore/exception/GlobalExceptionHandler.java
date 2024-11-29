@@ -266,6 +266,7 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(AlreadyDoneException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyDoneException(AlreadyDoneException ex) {
         ErrorResponse errorResponse = new ErrorResponse(

@@ -22,18 +22,6 @@ public class CommentController {
         return ResponseEntity.ok(commentService.postComment(request, principal));
     }
 
-    @PostMapping("/likeComment")
-    public ResponseEntity<LikeResponse> likeComment(@RequestBody LikeRequest request , Principal principal){
-        return ResponseEntity.ok(commentService.likeComment(request,principal));
-    }
-    @PostMapping("/dislikeComment")
-    public ResponseEntity<DislikeResponse> dislikeComment(@RequestBody DislikeRequest request , Principal principal){
-        return ResponseEntity.ok(commentService.dislikeComment(request,principal));
-    }
-    @PostMapping("/repostComment")
-    public ResponseEntity<RepostResponse> repostComment(@RequestBody RepostRequest request , Principal principal){
-        return ResponseEntity.ok(commentService.repostComment(request,principal));
-    }
 
 
 
