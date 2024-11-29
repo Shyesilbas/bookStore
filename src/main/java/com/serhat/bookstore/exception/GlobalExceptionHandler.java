@@ -266,8 +266,8 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
-    @ExceptionHandler(AlreadyDislikedException.class)
-    public ResponseEntity<ErrorResponse> handleAlreadyDislikedException(AlreadyDislikedException ex) {
+    @ExceptionHandler(AlreadyDoneException.class)
+    public ResponseEntity<ErrorResponse> handleAlreadyDoneException(AlreadyDoneException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
                 ex.getMessage(),
                 HttpStatus.BAD_REQUEST.value()
