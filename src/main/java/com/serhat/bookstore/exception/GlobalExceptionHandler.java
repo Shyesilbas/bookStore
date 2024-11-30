@@ -283,6 +283,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(NoLikeFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoLikeFoundException(NoLikeFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+
+
     @ExceptionHandler(AlreadyDoneException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyDoneException(AlreadyDoneException ex) {
         ErrorResponse errorResponse = new ErrorResponse(

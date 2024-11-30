@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -86,6 +87,21 @@ public class BookController {
             @RequestParam(defaultValue = "true") boolean ascending) {
         List<BookResponse> books = bookService.listBooksByRate(ascending);
         return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/comments")
+    public ResponseEntity<List<CommentResponse>> commentsForTheBook(@RequestParam String title , Principal principal){
+        return ResponseEntity.ok(bookService.commentsForTheBook(title, principal));
+    }
+
+    @GetMapping("/mostLikedComments")
+    public ResponseEntity<List<CommentResponse>> mostLikedCommentsForTheBook(@RequestParam String title , Principal principal){
+        return ResponseEntity.ok(bookService.mostLikedComments(title, principal));
+    }
+
+    @GetMapping("/highRatedComments")
+    public ResponseEntity<List<CommentResponse>> highRatedCommentsForTheBook(@RequestParam String title , Principal principal){
+        return ResponseEntity.ok(bookService.HighRatedComments(title, principal));
     }
 
 

@@ -1,10 +1,12 @@
 package com.serhat.bookstore.service;
 
 import com.serhat.bookstore.Repository.BookRepository;
+import com.serhat.bookstore.Repository.CommentRepository;
 import com.serhat.bookstore.dto.*;
 import com.serhat.bookstore.exception.*;
 import com.serhat.bookstore.model.Book;
 import com.serhat.bookstore.model.BookStatus;
+import com.serhat.bookstore.model.Comment;
 import com.serhat.bookstore.model.Genre;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ import java.util.Optional;
 @Slf4j
 public class BookService {
     private final BookRepository bookRepository;
+    private final CommentRepository commentRepository;
 
     private String getAdmin(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -274,5 +277,89 @@ public class BookService {
                 ))
                 .toList();
     }
+
+    public List<CommentResponse> commentsForTheBook(String title , Principal principal){
+        Book book = bookRepository.findByTitle(title)
+                .orElseThrow(()-> new BookNotFoundException("Book not found"));
+        List<Comment> comments = commentRepository.findByBook(book);
+        if(comments.isEmpty()){
+            throw new CommentNotFoundException("Comment not found for book : "+title);
+        }
+        return comments.stream()
+                .map(comment -> new CommentResponse(
+                        comment.getCustomer().getUsername(),
+                        comment.getCommentId(),
+                        comment.getBook().getTitle(),
+                        comment.getComment(),
+                        comment.getLikes(),
+                        comment.getDislikes(),
+                        comment.getRepost()
+                ))
+                .toList();
+    }
+
+    public List<CommentResponse> mostLikedComments(String title , Principal principal){
+        Book book = bookRepository.findByTitle(title)
+                .orElseThrow(()-> new BookNotFoundException("Book not found"));
+        List<Comment> comments = commentRepository.findByBook(book);
+        if(comments.isEmpty()){
+            throw new CommentNotFoundException("Comment not found for book : "+title);
+        }
+
+        boolean noLikes = comments.stream().allMatch(comment -> comment.getLikes() == 0);
+        if(noLikes){
+            throw new NoLikeFoundException("None of the comments got like for this book.");
+        }
+        int limit = 3;
+        List<Comment> filteredComments = comments.stream()
+                .filter(comment -> comment.getLikes()>0)
+                .sorted(Comparator.comparing(Comment::getLikes).reversed())
+                .limit(limit)
+                .toList();
+
+
+        return filteredComments
+                .stream()
+                .map(comment -> new CommentResponse(
+                        comment.getCustomer().getUsername(),
+                        comment.getCommentId(),
+                        comment.getBook().getTitle(),
+                        comment.getComment(),
+                        comment.getLikes(),
+                        comment.getDislikes(),
+                        comment.getRepost()
+                ))
+                .toList();
+    }
+    public List<CommentResponse> HighRatedComments(String title , Principal principal){
+        Book book = bookRepository.findByTitle(title)
+                .orElseThrow(()-> new BookNotFoundException("Book not found"));
+        List<Comment> comments = commentRepository.findByBook(book);
+        if(comments.isEmpty()){
+            throw new CommentNotFoundException("Comment not found for book : "+title);
+        }
+
+        int limit = 3;
+        List<Comment> filteredComments = comments.stream()
+                .filter(comment -> comment.getLikes()>0)
+                .sorted(Comparator.comparing(Comment::getRate).reversed())
+                .limit(limit)
+                .toList();
+
+
+        return filteredComments
+                .stream()
+                .map(comment -> new CommentResponse(
+                        comment.getCustomer().getUsername(),
+                        comment.getCommentId(),
+                        comment.getBook().getTitle(),
+                        comment.getComment(),
+                        comment.getLikes(),
+                        comment.getDislikes(),
+                        comment.getRepost()
+                ))
+                .toList();
+    }
+
 
 }
