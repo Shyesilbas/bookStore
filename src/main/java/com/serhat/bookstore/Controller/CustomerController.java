@@ -73,4 +73,13 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.showComments(principal));
     }
 
+    @GetMapping("/mostLikedComments")
+    public ResponseEntity<List<MostInteractedComments>> mostLikedComments(Principal principal){
+        return ResponseEntity.ok(customerService.mostLikedComments(principal));
+    }
+    @GetMapping("/mostDislikedComments")
+    public ResponseEntity<List<MostInteractedComments>> mostDislikedComments(Principal principal){
+        return ResponseEntity.ok(customerService.mostDislikedComments(principal));
+    }
+
 }

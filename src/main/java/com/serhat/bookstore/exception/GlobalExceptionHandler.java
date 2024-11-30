@@ -274,6 +274,14 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(NoDislikedCommentFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoDislikedCommentFoundException(NoDislikedCommentFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
 
     @ExceptionHandler(AlreadyDoneException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyDoneException(AlreadyDoneException ex) {

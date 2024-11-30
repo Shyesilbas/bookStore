@@ -1,9 +1,6 @@
 package com.serhat.bookstore.service;
 
-import com.serhat.bookstore.Repository.CommentRepository;
-import com.serhat.bookstore.Repository.CustomerRepository;
-import com.serhat.bookstore.Repository.ReservedBookRepository;
-import com.serhat.bookstore.Repository.SoldBookRepository;
+import com.serhat.bookstore.Repository.*;
 import com.serhat.bookstore.dto.*;
 import com.serhat.bookstore.exception.*;
 import com.serhat.bookstore.model.*;
@@ -29,6 +26,7 @@ public class CustomerService {
     private final KeycloakUserService keycloakUserService;
     private final SoldBookRepository soldBookRepository;
     private final CommentRepository commentRepository;
+    private final BookRepository bookRepository;
 
     @Transactional
     public CustomerResponse createCustomer(CustomerRequest request){
@@ -301,6 +299,68 @@ public class CustomerService {
                         comment.getRepost()
                 ))
                 .toList();
+    }
+
+    public List<MostInteractedComments> mostLikedComments (Principal principal){
+        String username = principal.getName().toLowerCase();
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(()-> new CustomerNotFoundException("Customer not found : "+username));
+        List<Comment> comments = commentRepository.findByCustomer(customer);
+        if(comments.isEmpty()){
+            throw new NoCommentFoundForBookException("No comment found for this Book");
+        }
+        boolean zeroLikes = comments.stream().allMatch(comment -> comment.getLikes() == 0);
+        if(zeroLikes){
+            throw new NoDislikedCommentFoundException("None of your comments get likes");
+        }
+        int limit = 3;
+        List<Comment> filteredComments = comments.stream()
+                .filter(comment -> comment.getLikes()>0)
+                .sorted(Comparator.comparing(Comment::getLikes).reversed())
+                .limit(limit)
+                .toList();
+
+        return filteredComments.stream()
+                .map(comment -> new MostInteractedComments(
+                        comment.getBook().getTitle(),
+                        comment.getComment(),
+                        comment.getLikes(),
+                        comment.getDislikes(),
+                        comment.getRepost()
+                ))
+                .toList();
+
+    }
+
+    public List<MostInteractedComments> mostDislikedComments (Principal principal){
+        String username = principal.getName().toLowerCase();
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(()-> new CustomerNotFoundException("Customer not found : "+username));
+        List<Comment> comments = commentRepository.findByCustomer(customer);
+        if(comments.isEmpty()){
+            throw new NoCommentFoundForBookException("No comment found for this Book");
+        }
+        boolean zeroDislikes = comments.stream().allMatch(comment -> comment.getDislikes() == 0);
+        if(zeroDislikes){
+            throw new NoDislikedCommentFoundException("None of your comments get dislike");
+        }
+        int limit = 3;
+     List<Comment> filteredComments = comments.stream()
+             .filter(comment -> comment.getDislikes()>0)
+             .sorted(Comparator.comparing(Comment::getDislikes).reversed())
+             .limit(limit)
+             .toList();
+
+     return filteredComments.stream()
+             .map(comment -> new MostInteractedComments(
+                     comment.getBook().getTitle(),
+                     comment.getComment(),
+                     comment.getLikes(),
+                     comment.getDislikes(),
+                     comment.getRepost()
+             ))
+             .toList();
+
     }
 
 }
