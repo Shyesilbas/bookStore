@@ -266,6 +266,14 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(NoCommentFoundForBookException.class)
+    public ResponseEntity<ErrorResponse> handleNoCommentFoundForBookException(NoCommentFoundForBookException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
 
     @ExceptionHandler(AlreadyDoneException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyDoneException(AlreadyDoneException ex) {

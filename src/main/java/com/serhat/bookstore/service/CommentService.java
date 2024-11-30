@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -66,6 +68,56 @@ public class CommentService {
                     request.rate(),
                     request.comment()
         );
+    }
+
+    public List<HighestRatedCommentsForBookResponse> highestRatedCommentsForBook (String title , Principal principal){
+        String username = principal.getName().toLowerCase();
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(()-> new CustomerNotFoundException("Customer not found : "+username));
+        Book book = bookRepository.findByTitle(title)
+                .orElseThrow(()-> new BookNotFoundException("Book Not Found : "+title));
+        List<Comment> comments = commentRepository.findByBook(book);
+        if(comments.isEmpty()){
+            throw new NoCommentFoundForBookException("No comment found for this Book");
+        }
+        comments.sort(Comparator.comparing(Comment::getRate).reversed());
+        int limit = 5;
+        return comments.stream()
+                .limit(limit)
+                .map(comment -> new HighestRatedCommentsForBookResponse(
+                        comment.getCustomer().getUsername(),
+                        comment.getComment(),
+                        comment.getLikes(),
+                        comment.getDislikes(),
+                        comment.getRepost(),
+                        comment.getRate()
+                ))
+                .toList();
+    }
+
+    public List<leastRatedCommentsForBookResponse> leastRatedCommentsForBook (String title , Principal principal){
+        String username = principal.getName().toLowerCase();
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(()-> new CustomerNotFoundException("Customer not found : "+username));
+        Book book = bookRepository.findByTitle(title)
+                .orElseThrow(()-> new BookNotFoundException("Book Not Found : "+title));
+        List<Comment> comments = commentRepository.findByBook(book);
+        if(comments.isEmpty()){
+            throw new NoCommentFoundForBookException("No comment found for this Book");
+        }
+        comments.sort(Comparator.comparing(Comment::getRate));
+        int limit = 5;
+        return comments.stream()
+                .limit(limit)
+                .map(comment -> new leastRatedCommentsForBookResponse(
+                        comment.getCustomer().getUsername(),
+                        comment.getComment(),
+                        comment.getLikes(),
+                        comment.getDislikes(),
+                        comment.getRepost(),
+                        comment.getRate()
+                ))
+                .toList();
     }
 
 

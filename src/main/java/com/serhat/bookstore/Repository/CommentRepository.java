@@ -1,5 +1,6 @@
 package com.serhat.bookstore.Repository;
 
+import com.serhat.bookstore.model.Book;
 import com.serhat.bookstore.model.Comment;
 import com.serhat.bookstore.model.Customer;
 import com.serhat.bookstore.model.Reaction;
@@ -16,4 +17,6 @@ public interface CommentRepository extends JpaRepository<Comment,Long> {
 
 
     List<Comment> findByCustomer(Customer customer);
+
+    List<Comment> findByBook(Book book);
 }

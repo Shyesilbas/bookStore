@@ -4,12 +4,10 @@ import com.serhat.bookstore.dto.*;
 import com.serhat.bookstore.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +20,15 @@ public class CommentController {
         return ResponseEntity.ok(commentService.postComment(request, principal));
     }
 
+    @GetMapping("/mostRatedCommentsForBook")
+    public ResponseEntity<List<HighestRatedCommentsForBookResponse>> highestRatedCommentsForBook(@RequestParam String title , Principal principal){
+        return ResponseEntity.ok(commentService.highestRatedCommentsForBook(title,principal));
+    }
+
+    @GetMapping("/leastRatedCommentsForBook")
+    public ResponseEntity<List<leastRatedCommentsForBookResponse>> leastRatedCommentsForBook(@RequestParam String title , Principal principal){
+        return ResponseEntity.ok(commentService.leastRatedCommentsForBook(title,principal));
+    }
 
 
 
