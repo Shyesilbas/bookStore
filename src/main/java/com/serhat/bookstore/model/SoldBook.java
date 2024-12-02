@@ -28,6 +28,9 @@ public class SoldBook {
     private String isbn;
     private LocalDateTime saleDate;
     private BigDecimal salePrice;
+    private BigDecimal discounted_sale_price;
+    private String saleRate;
+    private BigDecimal total_saved;
     private String title;
 
 }

@@ -4,16 +4,14 @@ import com.serhat.bookstore.Repository.BookRepository;
 import com.serhat.bookstore.Repository.CustomerRepository;
 import com.serhat.bookstore.Repository.SoldBookRepository;
 import com.serhat.bookstore.dto.*;
-import com.serhat.bookstore.exception.BookNotFoundException;
-import com.serhat.bookstore.exception.BookOutOfStocksException;
-import com.serhat.bookstore.exception.CustomerNotFoundException;
-import com.serhat.bookstore.exception.NoBooksSoldException;
+import com.serhat.bookstore.exception.*;
 import com.serhat.bookstore.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -39,18 +37,33 @@ public class SoldBookService {
             throw new BookOutOfStocksException("Unfortunately Book is out of stocks for now.");
         }
 
+        BigDecimal saleRate = switch (customer.getMemberShipStatus()){
+            case VIP -> new BigDecimal("0.60");
+            case PREMIUM -> new BigDecimal("0.40");
+            default -> BigDecimal.ZERO;
+        };
+
+        String saleRateString = saleRate.multiply(BigDecimal.valueOf(100)).toEngineeringString() + "%";
+
+
+        BigDecimal bookPrice = book.getPrice();
+        BigDecimal discountedPrice = bookPrice.multiply(BigDecimal.ONE.subtract(saleRate));
         SoldBook soldBook = SoldBook.builder()
                 .book(book)
                 .buyer(customer)
                 .isbn(book.getIsbn())
                 .saleDate(LocalDateTime.now())
-                .salePrice(book.getPrice())
+                .salePrice(discountedPrice)
+                .discounted_sale_price(discountedPrice)
+                .saleRate(saleRateString)
+                .total_saved(bookPrice.subtract(discountedPrice))
                 .title(book.getTitle())
                 .build();
 
         book.setQuantity(book.getQuantity()-1);
         book.setTotal_sold(book.getTotal_sold()+1);
         customer.setTotalBoughtBook(customer.getTotalBoughtBook()+1);
+        customer.setTotal_saved(customer.getTotal_saved().add(bookPrice.subtract(discountedPrice)));
         soldBookRepository.save(soldBook);
         customerRepository.save(customer);
         bookRepository.save(book);
@@ -60,7 +73,10 @@ public class SoldBookService {
                 customer.getUsername(),
                 book.getTitle(),
                 book.getPrice(),
-                soldBook.getSaleDate()
+                soldBook.getSaleDate(),
+                discountedPrice,
+                bookPrice.subtract(discountedPrice),
+                saleRateString
         );
     }
 

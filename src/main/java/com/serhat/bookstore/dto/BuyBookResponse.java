@@ -8,6 +8,9 @@ public record BuyBookResponse(
         String customerUsername,
         String title,
         BigDecimal fee,
-        LocalDateTime date
+        LocalDateTime date,
+        BigDecimal youPayed,
+        BigDecimal youSaved,
+        String saleRate
 ) {
 }
