@@ -6,6 +6,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/book/byTitle").permitAll()
                         .requestMatchers("api/book/details").permitAll()
                         .requestMatchers("/api/book/byYear").permitAll()
+                        .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/api/book/byRateRange/{minRange}/{maxRange}").permitAll()
                         .requestMatchers("/api/buy/mostSellers","api/buy/mostSellersByGenre","/api/buy/mostSellersOfAuthor").permitAll()
                         .requestMatchers("api/book/updatePrice").hasRole("ADMIN")
@@ -42,6 +44,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/reservation/listExpiredReservations").hasRole("ADMIN")
                         .requestMatchers("/api/reservation/listLateReservations").hasRole("ADMIN")
                         .anyRequest().authenticated())
+                .csrf(AbstractHttpConfigurer::disable)
                 .oauth2ResourceServer(oauth2-> oauth2
                         .jwt(Customizer.withDefaults())
                 ).build();
