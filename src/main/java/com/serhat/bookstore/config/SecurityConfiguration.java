@@ -1,5 +1,7 @@
 package com.serhat.bookstore.config;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -10,9 +12,13 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +28,11 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@Slf4j
+@RequiredArgsConstructor
 public class SecurityConfiguration {
+
+    private final OAuth2AuthorizedClientService authorizedClientService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
@@ -48,9 +58,43 @@ public class SecurityConfiguration {
                 .oauth2ResourceServer(oauth2-> oauth2
                         .jwt(Customizer.withDefaults())
                 )
+                .formLogin(f->f
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .permitAll()
+                        .defaultSuccessUrl("/home")
+                        .failureUrl("/login?error=true")
+                )
+                .logout(logout -> logout
+                        .logoutUrl("http://localhost:8080/realms/bookStore/protocol/openid-connect/logout?redirect_uri=http://localhost:8254/login")
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                )
                 .oauth2Login(o->o
-                        .defaultSuccessUrl("/api/book/by-price",true))
+                        .successHandler(oAuth2LoginSuccessHandler())
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/home",true))
                 .build();
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler oAuth2LoginSuccessHandler() {
+        return (request, response, authentication) -> {
+            if (authentication instanceof OAuth2AuthenticationToken token) {
+                String clientRegistrationId = token.getAuthorizedClientRegistrationId();
+                OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+                        clientRegistrationId, token.getName());
+
+                if (authorizedClient != null) {
+                    OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+                    log.info("Access Token: " + accessToken.getTokenValue());
+                }
+            }
+            response.sendRedirect("/home");
+        };
     }
 
     @Bean

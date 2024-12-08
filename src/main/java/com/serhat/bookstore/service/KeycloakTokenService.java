@@ -46,18 +46,9 @@ public class KeycloakTokenService {
 
 
         try {
-            Keycloak keycloak = KeycloakBuilder.builder()
-                    .serverUrl("http://localhost:8080")
-                    .realm("bookStore")
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
-                    .username(username)
-                    .password(password)
-                    .grantType(OAuth2Constants.PASSWORD)
-                    .build();
-
-            AccessTokenResponse tokenResponse = keycloak.tokenManager().grantToken();
-            return tokenResponse.getToken();
+            RestTemplate restTemplate = new RestTemplate();
+            String tokenResponse = restTemplate.postForObject(tokenUrl, requestParams(), String.class);
+            return tokenResponse;
         } catch (Exception e) {
             throw new TokenRetrievalException("Failed to retrieve token: " + e.getMessage(), e);
         }
@@ -68,5 +59,13 @@ public class KeycloakTokenService {
         }
     }
 
-
+    private MultiValueMap<String, String> requestParams() {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
+        params.add("username", "username");
+        params.add("password", "password");
+        params.add("grant_type", "password");
+        return params;
+    }
 }

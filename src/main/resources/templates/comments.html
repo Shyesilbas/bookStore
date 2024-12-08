@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #f4f4f4;
+            margin-bottom: 20px;
+        }
+
+        .history-container {
+            margin: 20px auto;
+            width: 80%;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th, .history-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .history-table th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Your Comments</h1>
+</div>
+<a href="/home">Go Back</a>
+<div class="history-container">
+    <table class="history-table">
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Comment Id</th>
+            <th>Title</th>
+            <th>Comment</th>
+            <th>Like</th>
+            <th>Dislike</th>
+            <th>Repost</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="Comments : ${comments}">
+            <td th:text="${Comments.username}">Book Title</td>
+            <td th:text="${Comments.commentId}">Comment Id</td>
+            <td th:text="${Comments.title}">Book Title</td>
+            <td th:text="${Comments.comment}">Comment</td>
+            <td th:text="${Comments.likes}">Like</td>
+            <td th:text="${Comments.dislikes}">Dislike</td>
+            <td th:text="${Comments.reposts}">Repost</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

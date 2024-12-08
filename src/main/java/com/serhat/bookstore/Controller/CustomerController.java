@@ -62,6 +62,13 @@ public class CustomerController {
         return "purchase-history";
     }
 
+    @GetMapping("/getComments")
+    public String getComments (Model model ,Principal principal){
+        List<CommentResponse> comments = customerService.showComments(principal);
+        model.addAttribute("comments",comments);
+        return "comments";
+    }
+
 
     @PutMapping("/verifyCustomer")
     public ResponseEntity<VerifyCustomerResponse> verifyCustomer (@RequestBody VerificationRequest request , Principal principal){
@@ -73,10 +80,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.updateMemberShip(request, principal));
     }
 
-    @GetMapping("/getComments")
-    public ResponseEntity<List<CommentResponse>> getComments (Principal principal){
-        return ResponseEntity.ok(customerService.showComments(principal));
-    }
+
 
     @GetMapping("/mostLikedComments")
     public ResponseEntity<List<MostInteractedComments>> mostLikedComments(Principal principal){
