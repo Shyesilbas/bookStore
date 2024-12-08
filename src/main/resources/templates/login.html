@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #555;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .oauth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .oauth-buttons a {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .oauth-google {
+            background-color: #4285F4;
+        }
+
+        .oauth-github {
+            background-color: #333;
+        }
+
+        .oauth-keycloak {
+            background-color: #d23b5c;
+        }
+
+        .oauth-buttons a:hover {
+            opacity: 0.9;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Login</h2>
+    <div class="oauth-buttons">
+        <a href="/oauth2/authorization/google" class="oauth-google">Login with Google</a>
+        <a href="/oauth2/authorization/github" class="oauth-github">Login with GitHub</a>
+        <a href="/oauth2/authorization/keycloak" class="oauth-keycloak">Login with Your Credentials</a>
+    </div>
+</div>
+</body>
+</html>

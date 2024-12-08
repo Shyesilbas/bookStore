@@ -7,24 +7,26 @@ import com.serhat.bookstore.model.Genre;
 import com.serhat.bookstore.service.SoldBookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/buy")
 public class SoldBookController {
     private final SoldBookService soldBookService;
 
     @PostMapping("/buyBook")
-    private ResponseEntity<BuyBookResponse> buyBook (@RequestBody BuyBookRequest request , Principal principal){
-        return ResponseEntity.ok(soldBookService.BuyBook(request,principal));
+    private ResponseEntity<BuyBookResponse> buyBook (@RequestParam("title") String title, Principal principal){
+        BuyBookRequest request = new BuyBookRequest(title);
+        return ResponseEntity.ok(soldBookService.BuyBook(request, principal));
     }
 
     @GetMapping("/mostSellers")
-    private ResponseEntity<List<MostSellers>> mostSellers(Principal principal){
+    public ResponseEntity<List<MostSellers>> mostSellers(Principal principal){
         return ResponseEntity.ok(soldBookService.mostSellers(principal));
     }
     @GetMapping("/mostSellersByGenre")

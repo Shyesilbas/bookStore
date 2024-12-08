@@ -6,13 +6,14 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +43,38 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/reservation/listExpiredReservations").hasRole("ADMIN")
                         .requestMatchers("/api/reservation/listLateReservations").hasRole("ADMIN")
                         .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2-> oauth2
+                .csrf(CsrfConfigurer::disable)
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/home", true)
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID", "XSRF-TOKEN")
+                        .permitAll()
+                        .addLogoutHandler((request, response, authentication) -> {
+                            String keycloakLogoutUrl = "http://localhost:8080/realms/bookStore/protocol/openid-connect/logout";
+                            try {
+                                response.sendRedirect(keycloakLogoutUrl);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        })
+                )
+                .oauth2Login(o -> o
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/home", true)
+                )
+
+                .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults())
-                ).build();
+                )
+                .build();
     }
 
     @Bean

@@ -6,13 +6,15 @@ import com.serhat.bookstore.dto.UpdatePhoneNumberRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
 
 @RequestMapping("/api/customer")
-@RestController
+@Controller
 @RequiredArgsConstructor
 @Slf4j
 public class CustomerController {
@@ -54,9 +56,12 @@ public class CustomerController {
     }
 
     @GetMapping("/purchaseHistory")
-    public ResponseEntity<List<SoldBookResponse>> purchaseHistory (Principal principal){
-        return ResponseEntity.ok(customerService.listPurchaseHistory(principal));
+    public String purchaseHistory(Model model, Principal principal) {
+        List<SoldBookResponse> history = customerService.listPurchaseHistory(principal);
+        model.addAttribute("purchaseHistory", history);
+        return "purchase-history";
     }
+
 
     @PutMapping("/verifyCustomer")
     public ResponseEntity<VerifyCustomerResponse> verifyCustomer (@RequestBody VerificationRequest request , Principal principal){

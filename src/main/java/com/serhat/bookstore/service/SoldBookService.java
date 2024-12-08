@@ -116,6 +116,7 @@ public class SoldBookService {
         return books.stream()
                 .limit(limit)
                 .map(book -> new MostSellers(
+                        book.getIsbn(),
                         book.getAuthor(),
                         book.getTitle(),
                         book.getGenre(),
@@ -136,6 +137,7 @@ public class SoldBookService {
         return books.stream()
                 .limit(limit)
                 .map(book -> new MostSellers(
+                        book.getIsbn(),
                         book.getAuthor(),
                         book.getTitle(),
                         book.getGenre(),
@@ -157,6 +159,7 @@ public class SoldBookService {
         return books.stream()
                 .limit(limit)
                 .map(book -> new MostSellers(
+                        book.getIsbn(),
                         book.getAuthor(),
                         book.getTitle(),
                         book.getGenre(),

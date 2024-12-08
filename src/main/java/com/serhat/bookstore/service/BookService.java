@@ -146,6 +146,21 @@ public class BookService {
                 .toList();
     }
 
+    public List<BookResponse> allBooks(){
+        List<Book> books = bookRepository.findAll();
+
+        return books.stream()
+                .map(book -> new BookResponse(
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getIsbn(),
+                        book.getGenre(),
+                        book.getRate(),
+                        book.getPrice()
+                ))
+                .toList();
+    }
+
     public List<BookResponse> findBookByTitle(String title){
         Optional<Book> books = bookRepository.findByTitle(title);
         if (books.isEmpty()){

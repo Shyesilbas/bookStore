@@ -8,6 +8,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequestMapping("/api/reservation")
@@ -17,7 +19,8 @@ public class ReservedBookController {
     private final ReservedBookService reservedBookService;
 
     @PostMapping("/reserveBook")
-    public ResponseEntity<ReserveBookResponse> reserveBook(@RequestBody ReserveBookRequest request , Principal principal){
+    public ResponseEntity<ReserveBookResponse> reserveBook(@RequestParam("isbn") String isbn, @RequestParam("Date") LocalDate Date, Principal principal){
+        ReserveBookRequest request = new ReserveBookRequest(isbn,Date);
         return ResponseEntity.ok(reservedBookService.reserveABook(request , principal));
     }
     @PostMapping("/returnReservedBook")
